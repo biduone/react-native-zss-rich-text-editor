@@ -140,8 +140,11 @@ export const InjectedMessageHandler = `
         case '${actions.focusContent}':
           zss_editor.focusContent();
           break;
-        case '${actions.focusTitle}':
-          zss_editor.focusTitle();
+        case '${actions.focusContent}':
+          zss_editor.focusContent();
+          break;
+        case '${actions.focusToEnd}':
+          zss_editor.focusToEnd();
           break;
         case '${actions.prepareInsert}':
           zss_editor.prepareInsert();

@@ -1578,6 +1578,28 @@
 			zss_editor.focusTitle = function() {
 				$('#zss_editor_title').focus();
 			}
+	
+			zss_editor.focusToEnd = function (editorId) {
+
+				var editor = document.getElementById(editorId || 'zss_editor_content');
+				if (!editor) { return }
+				var sel, range;
+				if (window.getSelection && document.createRange) {
+					range = document.createRange();
+					range.selectNodeContents(editor);
+					range.collapse(true);
+					range.setEnd(editor, editor.childNodes.length);
+					range.setStart(editor, editor.childNodes.length);
+					sel = window.getSelection();
+					sel.removeAllRanges();
+					sel.addRange(range);
+				} else if (document.body.createTextRange) {
+					range = document.body.createTextRange();
+					range.moveToElementText(editor);
+					range.collapse(true);
+					range.select();
+				}
+			}
 
 			zss_editor.focusEditor = function(editorId) {
 

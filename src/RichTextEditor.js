@@ -29,7 +29,8 @@ export default class RichTextEditor extends Component {
 
   static defaultProps = {
     contentInset: {},
-    style: {}
+    style: {},
+    source: require('./editor.html'),
   };
 
   constructor(props) {
@@ -291,7 +292,7 @@ export default class RichTextEditor extends Component {
 
   render() {
     //in release build, external html files in Android can't be required, so they must be placed in the assets folder and accessed via uri
-    const pageSource = PlatformIOS ? require('./editor.html') : { uri: 'file:///android_asset/editor.html' };
+    const pageSource = PlatformIOS ? this.props.source : { uri: 'file:///android_asset/editor.html' };
     return (
       <View style={{flex: 1}}>
         <WebViewBridge
@@ -342,6 +343,10 @@ export default class RichTextEditor extends Component {
 
   focusTitle() {
     this._sendAction(actions.focusTitle);
+  }
+
+  focusToEnd(){
+    this._sendAction(actions.focusToEnd);
   }
 
   focusContent() {
