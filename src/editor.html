@@ -885,8 +885,7 @@
 				clearHtmlIfTextIsEmpty('zss_editor_content');
 
 				$(document).on('selectionchange',function(e){
-					console.log('selectionchange');
-					zss_editor.calculateEditorHeightWithCaretPosition();
+					zss_editor.calcEditorAndScroll();
 					zss_editor.setScrollPosition();
 					zss_editor.enabledEditingItems(e);
 					notifyIfSelectedTextHasChanged();
@@ -1037,12 +1036,26 @@
 				return topPosition;
 			}
 
+			var prevTimer;
+			zss_editor.calcEditorAndScroll = function () {
+				if (!prevTimer) {//resolve selectionchange loop 
+					zss_editor.calculateEditorHeightWithCaretPosition();
+					prevTimer = setTimeout(function () {
+						prevTimer = null;
+					}, 100);
+				}
+			};
+			var prevContent = '';
 			zss_editor.calculateEditorHeightWithCaretPosition = function() {
+				var editor = document.getElementById('zss_editor_content');
+				var currentContent = editor.innerHTML;
+				if (currentContent === prevContent) { return; }
+				prevContent = currentContent;
 				var caretYPosition = zss_editor.getCaretYPosition();
 				var lineHeight = 20;
-				var halfLineHeight = lineHeight/2;
-				var offsetY = window.document.body.scrollTop;
-				var editorHeight = zss_editor.editorHeight;
+				var halfLineHeight = lineHeight / 2;
+				var offsetY = editor.scrollTop;
+				var editorHeight = editor.getBoundingClientRect().height;
 				var newPos;
 
 				var futureEditorHeight = caretYPosition + lineHeight;
@@ -1053,7 +1066,7 @@
 				}
 
 				if (newPos) {
-					window.scrollTo(0, newPos);
+					editor.scrollTo(0, newPos);
 				}
 			}
 

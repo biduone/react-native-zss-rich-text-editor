@@ -1,8 +1,36 @@
-import {actions, messages} from './const';
+import { actions, messages } from './const';
 
 export const InjectedMessageHandler = `
-  if (WebViewBridge) {
-    WebViewBridge.onMessage = function (message) {
+  (function () {
+    var patchedPostMessage = (message, targetOrigin, transfer)=>{
+        window.ReactNativeWebView.postMessage(message);
+    };
+    patchedPostMessage.toString = function () {
+        return String(Object.hasOwnProperty).replace('hasOwnProperty', 'postMessage');
+    };
+    window.postMessage = patchedPostMessage;
+
+    function wrap(fn) {
+        return function wrapper() {
+            var res = fn.apply(this, arguments);
+            window.postMessage('navigationStateChange');
+            return res;
+        }
+    }
+
+    history.pushState = wrap(history.pushState);
+    history.replaceState = wrap(history.replaceState);
+    window.addEventListener('popstate', function() {
+        window.postMessage('navigationStateChange');
+        WebViewBridge.getHistoryLength();
+    });
+  })();
+
+  window.WebViewBridge = {
+    send: function(msg){
+      window.postMessage(msg);
+    },
+    execAction: function (message) {
 
       const action = JSON.parse(message);
 
@@ -174,6 +202,9 @@ export const InjectedMessageHandler = `
           zss_editor.setPlatform(action.data);
           break;
       }
-    };
-  }
+    }
+  };
+
+  true;
+
 `;
